@@ -13,17 +13,22 @@ st.markdown("**Importez les 4 fichiers exportés de la marketplace** (.csv ou .x
 # 🧩 FONCTION DE CHARGEMENT ROBUSTE
 # -------------------------------
 def load_file(file):
-    """Charge un fichier CSV ou Excel de manière robuste"""
+    """Charge un fichier CSV ou Excel avec détection automatique de l'encodage"""
     if file is None:
         return None
     try:
         if file.name.endswith(".xlsx"):
             df = pd.read_excel(file)
         else:
-            try:
-                df = pd.read_csv(file, sep=";")
-            except pd.errors.ParserError:
-                df = pd.read_csv(file)
+            # tentative avec encodages courants
+            for enc in ["utf-8", "utf-8-sig", "latin1", "cp1252"]:
+                try:
+                    df = pd.read_csv(file, sep=";", encoding=enc)
+                    break
+                except Exception:
+                    df = None
+            if df is None:
+                raise ValueError("Aucun encodage compatible détecté pour ce fichier.")
         if df.empty:
             st.warning(f"⚠️ Le fichier {file.name} est vide ou ne contient pas de données.")
             return None
@@ -65,7 +70,7 @@ if all([users is not None, entreprises is not None, relations is not None, proje
     except KeyError:
         kpi2 = len(users)
     kpi3 = len(relations)
-    kpi4 = round(kpi3 / max(kpi2, 1), 2)  # Taux de conversion
+    kpi4 = round(kpi3 / max(kpi2, 1), 2)
     try:
         kpi5 = projets["Incubateur territorial"].nunique()
     except KeyError:
