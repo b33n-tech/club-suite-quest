@@ -6,33 +6,45 @@ st.set_page_config(page_title="Dashboard Quest for Change", layout="wide")
 
 st.title("🚀 Prototype Dashboard - Quest for Change")
 
-st.markdown("**Importez les 4 fichiers CSV exportés de la marketplace** (aucune modification nécessaire).")
+st.markdown("**Importez les 4 fichiers exportés de la marketplace** (.csv ou .xlsx, sans modification nécessaire).")
 
+# Fonction de chargement universelle
+def load_file(file):
+    if file.name.endswith(".xlsx"):
+        return pd.read_excel(file)
+    else:
+        # CSV par défaut avec séparateur détection
+        try:
+            return pd.read_csv(file, sep=";")
+        except:
+            return pd.read_csv(file)
+        
 # Uploaders
 col1, col2 = st.columns(2)
 col3, col4 = st.columns(2)
 
 with col1:
-    users_file = st.file_uploader("📁 Profils individuels Le Club (.csv)", type=["csv"])
+    users_file = st.file_uploader("📁 Profils individuels Le Club", type=["csv", "xlsx"])
 with col2:
-    entreprises_file = st.file_uploader("🏢 Profils Entreprises Le Club (.csv)", type=["csv"])
+    entreprises_file = st.file_uploader("🏢 Profils Entreprises Le Club", type=["csv", "xlsx"])
 with col3:
-    relations_file = st.file_uploader("🔗 Historique des mises en relation (.csv)", type=["csv"])
+    relations_file = st.file_uploader("🔗 Historique des mises en relation", type=["csv", "xlsx"])
 with col4:
-    projets_file = st.file_uploader("🧭 Base Globale Projets (.csv)", type=["csv"])
+    projets_file = st.file_uploader("🧭 Base Globale Projets", type=["csv", "xlsx"])
 
+# Vérification que tout est chargé
 if all([users_file, entreprises_file, relations_file, projets_file]):
     st.success("✅ Tous les fichiers ont été importés avec succès.")
 
-    # Chargement
-    users = pd.read_csv(users_file, sep=";")
-    entreprises = pd.read_csv(entreprises_file, sep=";")
-    relations = pd.read_csv(relations_file, sep=";")
-    projets = pd.read_csv(projets_file, sep=";")
+    # Chargement automatique
+    users = load_file(users_file)
+    entreprises = load_file(entreprises_file)
+    relations = load_file(relations_file)
+    projets = load_file(projets_file)
 
-    # KPIs
+    # --- KPIs ---
     kpi1 = len(entreprises)
-    kpi2 = len(users[users["Statut"].str.lower() == "active"])
+    kpi2 = len(users[users["Statut"].astype(str).str.lower() == "active"])
     kpi3 = len(relations)
     kpi4 = round(kpi3 / max(kpi2, 1), 2)  # taux de conversion
     kpi5 = projets["Incubateur territorial"].nunique()
@@ -45,7 +57,7 @@ if all([users_file, entreprises_file, relations_file, projets_file]):
     col4.metric("Taux de conversion", f"{kpi4}")
     col5.metric("Incubateurs distincts", kpi5)
 
-    # Visualisation : répartition par incubateur
+    # --- Visualisation ---
     st.subheader("🏗️ Répartition des projets par incubateur")
     incub_count = projets["Incubateur territorial"].value_counts()
     fig, ax = plt.subplots()
@@ -56,4 +68,4 @@ if all([users_file, entreprises_file, relations_file, projets_file]):
     st.pyplot(fig)
 
 else:
-    st.info("🕐 En attente de l’importation des 4 fichiers pour générer le dashboard.")
+    st.info("🕐 En attente de l’importation des 4 fichiers (.csv ou .xlsx) pour générer le dashboard.")
