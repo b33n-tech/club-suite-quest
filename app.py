@@ -13,26 +13,28 @@ st.markdown("**Importez les 4 fichiers exportés de la marketplace** (.csv ou .x
 # 🧩 FONCTION DE CHARGEMENT ROBUSTE
 # -------------------------------
 def load_file(file):
-    """Charge un fichier CSV ou Excel avec détection automatique de l'encodage"""
+    """Charge un fichier CSV ou Excel en détectant automatiquement encodage et séparateur"""
     if file is None:
         return None
     try:
         if file.name.endswith(".xlsx"):
-            df = pd.read_excel(file)
-        else:
-            # tentative avec encodages courants
-            for enc in ["utf-8", "utf-8-sig", "latin1", "cp1252"]:
+            return pd.read_excel(file)
+
+        # 🔍 Tentative de lecture avec détection multiple
+        encodings = ["utf-8", "utf-8-sig", "latin1", "cp1252"]
+        seps = [";", ",", "\t", "|"]
+
+        for enc in encodings:
+            for sep in seps:
                 try:
-                    df = pd.read_csv(file, sep=";", encoding=enc)
-                    break
+                    df = pd.read_csv(file, sep=sep, encoding=enc)
+                    if df.shape[1] > 1:  # si plusieurs colonnes trouvées → bon format
+                        st.caption(f"✅ {file.name} lu avec encodage **{enc}** et séparateur **'{sep}'**")
+                        return df
                 except Exception:
-                    df = None
-            if df is None:
-                raise ValueError("Aucun encodage compatible détecté pour ce fichier.")
-        if df.empty:
-            st.warning(f"⚠️ Le fichier {file.name} est vide ou ne contient pas de données.")
-            return None
-        return df
+                    continue
+
+        raise ValueError("Aucun encodage ni séparateur compatible détecté pour ce fichier.")
     except Exception as e:
         st.error(f"❌ Erreur lors de la lecture du fichier {file.name} : {e}")
         return None
@@ -97,6 +99,13 @@ if all([users is not None, entreprises is not None, relations is not None, proje
         st.pyplot(fig)
     except Exception as e:
         st.warning(f"Impossible d’afficher le graphique : {e}")
+
+    # --- Preview des données ---
+    with st.expander("👀 Aperçu des données importées"):
+        st.write("**Profils individuels :**", users.head())
+        st.write("**Entreprises :**", entreprises.head())
+        st.write("**Mises en relation :**", relations.head())
+        st.write("**Projets :**", projets.head())
 
 else:
     st.info("🕐 En attente de l’importation des 4 fichiers (.csv ou .xlsx) pour générer le dashboard.")
