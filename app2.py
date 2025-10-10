@@ -5,10 +5,32 @@ import time
 
 st.set_page_config(page_title="Dashboard Quest for Change", layout="wide")
 st.title("🚀 Dashboard Quest for Change - Prototype UX Friendly")
-st.markdown(
-    "Suivez les étapes ci-dessous pour uploader vos fichiers et générer vos KPIs. "
-    "Chaque étape est guidée pour que tout soit clair en une seconde."
-)
+
+# -------------------------------
+# Section 1 : Comment ça marche ?
+# -------------------------------
+with st.container():
+    st.header("📝 Comment ça marche ?")
+    st.markdown("""
+    Cet outil vous permet d'importer vos fichiers issus de la marketplace et de l'incubateur, 
+    pour générer vos **indicateurs clés** : profils, entreprises, mises en relation, projets.  
+
+    **Mode d'emploi rapide :**
+    1. Cliquez sur le bouton d'upload pour chaque fichier.  
+    2. Vérifiez que le fichier a été lu correctement (✅ confirmation).  
+    3. Cliquez sur “Suivant” pour passer à l'étape suivante.  
+    4. À la fin, vos KPIs et graphiques apparaîtront automatiquement.
+    """)
+
+# -------------------------------
+# Section 2 : Tester vos fichiers
+# -------------------------------
+with st.container():
+    st.header("⚡ Tester vos fichiers")
+    st.markdown("""
+    Importez vos fichiers pour générer vos KPIs et visualiser vos données. 
+    Suivez simplement les étapes, une par une, pour que tout soit clair et rapide.
+    """)
 
 # -------------------------------
 # Fonction de lecture CSV / Excel
@@ -43,7 +65,7 @@ if "dfs" not in st.session_state:
     st.session_state.dfs = [None]*4
 
 # -------------------------------
-# Paramètres des étapes + couleurs foncées pour dark mode
+# Paramètres des étapes + couleurs foncées
 # -------------------------------
 steps_info = [
     {"label": "📁 Profils individuels Le Club",
@@ -94,7 +116,7 @@ if st.session_state.step < len(steps_info):
 
     if uploaded_file is not None:
         with st.spinner("📂 Lecture du fichier..."):
-            time.sleep(1)  # effet “animation” chargement
+            time.sleep(1)
             df = load_file(uploaded_file)
         if df is not None:
             st.session_state.files[st.session_state.step] = uploaded_file
