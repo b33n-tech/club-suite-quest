@@ -4,7 +4,11 @@ import matplotlib.pyplot as plt
 import time
 
 st.set_page_config(page_title="Dashboard Quest for Change", layout="wide")
-st.title("🚀 Dashboard Quest for Change - Prototype Ludique")
+st.title("🚀 Dashboard Quest for Change - Prototype UX Friendly")
+st.markdown(
+    "Suivez les étapes ci-dessous pour uploader vos fichiers et générer vos KPIs. "
+    "Chaque étape est guidée pour que tout soit clair en une seconde."
+)
 
 # -------------------------------
 # Fonction de lecture CSV / Excel
@@ -39,21 +43,21 @@ if "dfs" not in st.session_state:
     st.session_state.dfs = [None]*4
 
 # -------------------------------
-# Paramètres des étapes
+# Paramètres des étapes + couleurs foncées pour dark mode
 # -------------------------------
 steps_info = [
     {"label": "📁 Profils individuels Le Club",
      "desc": "Importez le fichier 'extract_users_xxx.csv'. Contient tous les profils inscrits.",
-     "color": "#A3E4D7"},
+     "bg_color": "#00796B", "text_color": "#ffffff"},
     {"label": "🏢 Profils Entreprises Le Club",
      "desc": "Importez le fichier 'Profil entreprises.csv'. Contient toutes les entreprises.",
-     "color": "#F9E79F"},
+     "bg_color": "#F57C00", "text_color": "#ffffff"},
     {"label": "🔗 Historique des mises en relation",
      "desc": "Importez le fichier 'Historique des mises en relation.csv'. Contient toutes les interactions.",
-     "color": "#F5B7B1"},
+     "bg_color": "#D32F2F", "text_color": "#ffffff"},
     {"label": "🧭 Base Globale Projets",
      "desc": "Importez la base interne des projets incubés pour croiser les données.",
-     "color": "#D2B4DE"}
+     "bg_color": "#512DA8", "text_color": "#ffffff"}
 ]
 
 # -------------------------------
@@ -62,13 +66,23 @@ steps_info = [
 progress = st.progress(st.session_state.step / len(steps_info))
 
 # -------------------------------
-# Affichage de l'étape courante
+# Upload étape courante
 # -------------------------------
 if st.session_state.step < len(steps_info):
     step = steps_info[st.session_state.step]
+    st.subheader(f"Étape {st.session_state.step + 1} sur {len(steps_info)}")
+
+    # Card style
     st.markdown(
         f"""
-        <div style="padding:20px; background-color:{step['color']}; border-radius:10px; margin-bottom:20px;">
+        <div style="
+            padding:20px; 
+            background-color:{step['bg_color']}; 
+            color:{step['text_color']}; 
+            border-radius:10px; 
+            margin-bottom:20px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        ">
         <h3>{step['label']}</h3>
         <p>{step['desc']}</p>
         </div>
@@ -79,9 +93,8 @@ if st.session_state.step < len(steps_info):
     uploaded_file = st.file_uploader("", type=["csv","xlsx"], key=f"upload_{st.session_state.step}")
 
     if uploaded_file is not None:
-        # Animation de chargement simulée
         with st.spinner("📂 Lecture du fichier..."):
-            time.sleep(1)
+            time.sleep(1)  # effet “animation” chargement
             df = load_file(uploaded_file)
         if df is not None:
             st.session_state.files[st.session_state.step] = uploaded_file
