@@ -65,42 +65,28 @@ relations_df = load_file(relations_file)
 if users_df is not None and entreprises_df is not None and relations_df is not None:
     st.header("📊 KPIs principaux")
 
-    # -------------------------------
-    # KPIs Utilisateurs
-    # -------------------------------
+    # KPI Utilisateurs
     total_users = len(users_df)
-    active_users = users_df[users_df["Statut"].str.contains("actif", case=False)].shape[0] if "Statut" in users_df.columns else 0
+    active_users = users_df["Statut"].str.contains("actif", case=False).sum() if "Statut" in users_df.columns else "N/A"
 
-    # -------------------------------
-    # KPIs Entreprises
-    # -------------------------------
+    # KPI Entreprises
     total_entreprises = len(entreprises_df)
-    if "Statut" in entreprises_df.columns:
-        entreprises_validees = entreprises_df[entreprises_df["Statut"].str.contains("Validé", case=False)].shape[0]
-    else:
-        entreprises_validees = 0
+    entreprises_validees = entreprises_df["Statut"].str.contains("Validé", case=False).sum() if "Statut" in entreprises_df.columns else "N/A"
 
-    # -------------------------------
-    # KPIs Mises en relation
-    # -------------------------------
+    # KPI Mises en relation
     total_relations = len(relations_df)
-    taux_relation_par_user = round(total_relations / max(total_users,1),2)
+    taux_relation_par_user = round(total_relations / max(total_users,1),2) if total_users > 0 else "N/A"
 
-    # -------------------------------
-    # Colonnes pour affichage
-    # -------------------------------
+    # Affichage KPIs
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Utilisateurs inscrits", total_users, help="Nombre total de profils sur la marketplace")
-    c2.metric("Utilisateurs actifs", active_users, help="Nombre de profils dont le statut est 'actif'")
-    c3.metric("Entreprises inscrites", total_entreprises, help="Nombre total d'entreprises")
-    c4.metric("Entreprises validées", entreprises_validees, help="Nombre d'entreprises dont le statut est 'Validé'")
-    c5.metric("Mises en relation", total_relations, help="Nombre total de mises en relation enregistrées")
+    c1.metric("Utilisateurs inscrits", total_users)
+    c2.metric("Utilisateurs actifs", active_users)
+    c3.metric("Entreprises inscrites", total_entreprises)
+    c4.metric("Entreprises validées", entreprises_validees)
+    c5.metric("Mises en relation", total_relations)
+    st.metric("Taux de relation / utilisateur", taux_relation_par_user)
 
-    st.metric("Taux de relation par utilisateur", f"{taux_relation_par_user}", help="Nombre moyen de mises en relation par utilisateur")
-
-    # -------------------------------
     # Graphiques
-    # -------------------------------
     st.subheader("📊 Répartition des entreprises par incubateur")
     if "Incubateurs" in entreprises_df.columns:
         fig, ax = plt.subplots()
@@ -109,7 +95,7 @@ if users_df is not None and entreprises_df is not None and relations_df is not N
         ax.set_ylabel("Nombre d'entreprises")
         st.pyplot(fig)
     else:
-        st.info("Colonne 'Incubateurs' non trouvée dans le fichier entreprises.")
+        st.info("Colonne 'Incubateurs' non trouvée dans le fichier entreprises. Graphique non généré.")
 
     st.subheader("📊 Répartition des mises en relation par statut")
     if "Statut" in relations_df.columns:
@@ -119,11 +105,9 @@ if users_df is not None and entreprises_df is not None and relations_df is not N
         ax2.set_ylabel("Nombre")
         st.pyplot(fig2)
     else:
-        st.info("Colonne 'Statut' non trouvée dans le fichier des mises en relation.")
+        st.info("Colonne 'Statut' non trouvée dans le fichier des mises en relation. Graphique non généré.")
 
-    # -------------------------------
-    # Aperçu des fichiers
-    # -------------------------------
+    # Aperçu fichiers
     with st.expander("👀 Aperçu des fichiers importés"):
         st.write("**Utilisateurs :**", users_df.head())
         st.write("**Entreprises :**", entreprises_df.head())
