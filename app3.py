@@ -34,11 +34,23 @@ st.header("1️⃣ Importez vos fichiers")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    users_file = st.file_uploader("📁 Profils Utilisateurs", type=["csv","xlsx"])
+    users_file = st.file_uploader(
+        "📁 Profils Utilisateurs", 
+        type=["csv","xlsx"], 
+        help="Fichier attendu : 'extract_users_09-10-2025.csv' contenant #Id, Prénom, Nom, Statut, etc."
+    )
 with col2:
-    entreprises_file = st.file_uploader("🏢 Profils Entreprises", type=["csv","xlsx"])
+    entreprises_file = st.file_uploader(
+        "🏢 Profils Entreprises", 
+        type=["csv","xlsx"], 
+        help="Fichier attendu : 'Profil entreprises.csv' avec #Id, Nom, Incubateurs, Statut, etc."
+    )
 with col3:
-    relations_file = st.file_uploader("🔗 Mises en relation", type=["csv","xlsx"])
+    relations_file = st.file_uploader(
+        "🔗 Mises en relation", 
+        type=["csv","xlsx"], 
+        help="Fichier attendu : 'Historique des mises en relation.csv' contenant Utilisateur, goBetween, Statut, Dates simples"
+    )
 
 # -------------------------------
 # Lecture des fichiers
